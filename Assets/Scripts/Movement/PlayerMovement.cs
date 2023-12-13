@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using EZCameraShake;
 
 public class PlayerMovement : MonoBehaviour
 {
@@ -16,6 +17,8 @@ public class PlayerMovement : MonoBehaviour
     public float jumpCooldown;
     public float airMultiplier;
     bool readyToJump;
+
+    public Vector3 checkpoint;
 
     [HideInInspector] public float walkSpeed;
     [HideInInspector] public float sprintSpeed;
@@ -32,7 +35,7 @@ public class PlayerMovement : MonoBehaviour
     public float playerHeight;
     public LayerMask whatIsGround;
     private RaycastHit hit;
-    private BoxCollider boxCollider;
+    [SerializeField] private Collider playercol;
     public SpriteRenderer sr;
     bool grounded;
 
@@ -55,15 +58,15 @@ public class PlayerMovement : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         rb.freezeRotation = true;
 
+
         readyToJump = true;
     }
 
     private void Update()
     {
         // ground check
-        grounded = Physics.Raycast(transform.position, Vector3.down, playerHeight * 0.5f + 0.2f, whatIsGround);
-        //grounded = Physics.Raycast(boxCollider.bounds.center, Vector3.down, out hit, boxCollider.bounds.extents.y + 0.3f, whatIsGround);
-
+        //grounded = Physics.Raycast(transform.position, Vector3.down, playerHeight * 0.5f + 0.2f, whatIsGround);
+        grounded = Physics.Raycast(playercol.bounds.center, Vector3.down, out hit, playercol.bounds.extents.y + 0.3f, whatIsGround);
         MyInput();
         SpeedControl();
 
@@ -100,7 +103,7 @@ public class PlayerMovement : MonoBehaviour
         else if (horizontalInput != 0 && horizontalInput < 0) {sr.flipX = true; chargeLight.transform.localPosition = new Vector3(0.2f, 0, - 0.2f); }
 
         // when to jump
-        if (Input.GetKey(jumpKey) && readyToJump && grounded && !isCharging)
+        if (Input.GetKeyDown(jumpKey) && readyToJump && grounded && !isCharging)
         {
             readyToJump = false;
 
@@ -118,10 +121,10 @@ public class PlayerMovement : MonoBehaviour
         // on slope
         if (OnSlope() && !exitingSlope)
         {
-            rb.AddForce(GetSlopeMoveDirection() * moveSpeed * 2f, ForceMode.Force);
+            rb.AddForce(GetSlopeMoveDirection() * moveSpeed * 3f, ForceMode.Force);
 
             if (rb.velocity.y > 0)
-                rb.AddForce(Vector3.down * 10f, ForceMode.Force);
+                rb.AddForce(Vector3.down * 70f, ForceMode.Force);
         }
 
         // on ground
@@ -188,5 +191,11 @@ public class PlayerMovement : MonoBehaviour
         chargeLight.SetActive(false);
         //chargeAura.SetActive(false);
         isCharging = false;
+    }
+
+    public void Checkpoint()
+    {
+        this.transform.position = checkpoint;
+        CameraShaker.Instance.ShakeOnce(4f, 4f, .1f, 1f);
     }
 }

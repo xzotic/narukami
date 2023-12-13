@@ -15,9 +15,9 @@ public class PlayerAttack : MonoBehaviour
     public int currentCharge;
 
     [Header("Charge Time")]
-    public int charge2time;
-    public int charge3time;
-    public int chargeBreakTime;
+    public float charge2time;
+    public float charge3time;
+    public float chargeBreakTime;
 
     private void Update()
     {
@@ -70,7 +70,7 @@ public class PlayerAttack : MonoBehaviour
 
     private void ResetCharge()
     {
-        chargeCooldown = 2;
+        chargeCooldown = 1;
         chargeTimer = 0;
         anim.SetInteger("charge", 0);
         currentCharge = 0;
@@ -81,10 +81,10 @@ public class PlayerAttack : MonoBehaviour
     {
         GameObject fist = Instantiate(attacks[currentCharge - 1], transform.parent.position, Quaternion.identity);
         fist.transform.LookAt(transform.position);
-        fist.GetComponent<Rigidbody>().AddForce(fist.transform.forward * 1000, ForceMode.Impulse);
+        fist.GetComponent<Rigidbody>().AddForce(fist.transform.forward * 1000 * currentCharge, ForceMode.Impulse);
         
         //StartCoroutine(FadeOutMaterial(2f, fist));
-        if (currentCharge == 1) Destroy(fist, 0.5f);
+        //if (currentCharge == 1) Destroy(fist, 0.5f);
     }
 
     IEnumerator FadeOutMaterial(float fadeSpeed, GameObject objectToFade)
